@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JAMB CBT 2027 - Free for Nigerians</title>
+<style>
+body{font-family:Arial;background:#0f172a;color:white;margin:0;padding:10px}
+.container{max-width:700px;margin:0 auto}
+h1{text-align:center;color:#22c55e;font-size:22px}
+.box{background:#1e293b;padding:15px;border-radius:12px;margin-bottom:12px}
+button{background:#22c55e;color:black;font-weight:bold;border:none;padding:13px;width:100%;border-radius:9px;font-size:15px;margin:5px 0;cursor:pointer}
+select,input{width:100%;padding:12px;border-radius:8px;background:#0f172a;color:white;border:1px solid #334155;margin:5px 0;box-sizing:border-box}
+.opt{background:#0f172a;border:1px solid #334155;padding:12px;border-radius:8px;margin:6px 0;cursor:pointer}
+.opt.selected{background:#22c55e;color:black;font-weight:bold}
+#timer{font-size:28px;text-align:center;font-weight:bold;color:#facc15}
+.small{font-size:12px;color:#94a3b8;text-align:center}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🇳🇬 JAMB CBT SIMULATOR 2027</h1>
+<p class="small">Free • Real JAMB Format • Timer • Instant Result • Pidgin Explanation</p>
+
+<div id="setup" class="box">
+<label>Your Name:</label>
+<input id="studentName" placeholder="e.g. Musa Ibrahim">
+<label>Choose Your 4 Subjects:</label>
+<select id="sub1"><option>English</option><option>Mathematics</option><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Economics</option><option>Government</option></select>
+<select id="sub2"><option>Mathematics</option><option>English</option><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Economics</option></select>
+<select id="sub3"><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Economics</option><option>Government</option></select>
+<select id="sub4"><option>Chemistry</option><option>Biology</option><option>Physics</option><option>Economics</option><option>Government</option></select>
+<button onclick="startExam()">START EXAM — 2 HOURS</button>
+<p class="small">Made for Nigerian Students • Abuja</p>
+</div>
+
+<div id="exam" class="box" style="display:none">
+<div id="timer">2:00:00</div>
+<p id="progress" style="text-align:center"></p>
+<h3 id="qText"></h3>
+<div id="options"></div>
+<button onclick="nextQ()">NEXT QUESTION →</button>
+<button onclick="submitExam()" style="background:#ef4444;color:white">SUBMIT EXAM</button>
+</div>
+
+<div id="result" class="box" style="display:none">
+<h2 id="scoreTitle"></h2>
+<div id="scoreDetail" style="background:white;color:black;padding:15px;border-radius:8px;white-space:pre-wrap"></div>
+<button onclick="location.reload()">RETAKE EXAM</button>
+<button onclick="shareApp()" style="background:#3b82f6;color:white">SHARE TO FRIENDS</button>
+</div>
+<p class="small">Share this to help other JAMB students</p>
+</div>
+
+<script>
+const BANK={
+English:[
+{q:"Choose nearest in meaning: The student was very diligent.",o:["lazy","hardworking","rude","slow"],a:1,exp:"Diligent means hardworking."},
+{q:"Neither Musa nor his friends ___ coming.",o:["is","are","was","has"],a:1,exp:"Neither...nor takes plural."},
+{q:"Synonym of 'happy'?",o:["sad","joyful","angry","tired"],a:1,exp:"Happy = joyful."},
+{q:"Correctly spelt:",o:["Occurence","Occurrence","Ocurrence","Occurrance"],a:1,exp:"Double c, double r."},
+{q:"'Let the cat out of the bag' means:",o:["free a cat","reveal a secret","buy a bag","run away"],a:1,exp:"To reveal secret."}
+],
+Mathematics:[
+{q:"If 3x + 4 = 19, x = ?",o:["5","6","4","3"],a:0,exp:"3x=15, x=5"},
+{q:"Simplify 2^3 x 2^2",o:["32","16","10","2^5"],a:3,exp:"Add powers: 2^5"},
+{q:"Mean of 2,4,6,8",o:["4","5","6","10"],a:1,exp:"20/4=5"},
+{q:"If y=2x+1, x=3, y=?",o:["5","6","7","8"],a:2,exp:"y=7"},
+{q:"15% of 200?",o:["20","30","25","40"],a:1,exp:"30"}
+],
+Physics:[
+{q:"Unit of force is:",o:["Joule","Newton","Watt","Pascal"],a:1,exp:"Newton"},
+{q:"g is approx:",o:["5 m/s2","10 m/s2","15 m/s2","20 m/s2"],a:1,exp:"10 m/s2 for JAMB"},
+{q:"Speed = ?",o:["distance/time","time/distance","mass x velocity","force x distance"],a:0,exp:"Speed = distance/time"}
+],
+Chemistry:[
+{q:"Symbol for Sodium:",o:["S","So","Na","N"],a:2,exp:"Na from Natrium"},
+{q:"pH of neutral:",o:["0","7","14","1"],a:1,exp:"Neutral = 7"},
+{q:"H2O is:",o:["Acid","Base","Water","Salt"],a:2,exp:"Water"}
+],
+Biology:[
+{q:"Powerhouse of cell:",o:["Nucleus","Mitochondria","Ribosome","Golgi"],a:1,exp:"Mitochondria gives energy"},
+{q:"Photosynthesis in:",o:["Root","Leaf","Stem","Flower"],a:1,exp:"Leaf"}
+],
+Economics:[
+{q:"Demand means:",o:["Want","Want + ability to pay","Supply","Price"],a:1,exp:"Demand = want backed by money"},
+{q:"Scale of preference is due to:",o:["Scarcity","Abundance","Money","Choice"],a:0,exp:"Because resources are scarce"}
+],
+Government:[
+{q:"First executive president of Nigeria:",o:["Buhari","Shagari","Azikiwe","Balewa"],a:1,exp:"Shehu Shagari 1979"}
+]
+};
+let questions=[],current=0,answers=[],timeLeft=7200,timerInt;
+function startExam(){
+let name=document.getElementById('studentName').value.trim();if(!name){alert('Type your name first');return;}
+let subs=[document.getElementById('sub1').value,document.getElementById('sub2').value,document.getElementById('sub3').value,document.getElementById('sub4').value];
+questions=[];subs.forEach(s=>{let qs=BANK[s]||BANK['English'];qs.forEach(q=>questions.push({...q,subject:s}));});
+questions=questions.sort(()=>Math.random()-0.5).slice(0,20);answers=new Array(questions.length).fill(-1);current=0;
+document.getElementById('setup').style.display='none';document.getElementById('exam').style.display='block';showQ();
+timerInt=setInterval(()=>{timeLeft--;let h=Math.floor(timeLeft/3600),m=Math.floor((timeLeft%3600)/60),s=timeLeft%60;document.getElementById('timer').innerText=`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;if(timeLeft<=0)submitExam();},1000);
+}
+function showQ(){let q=questions[current];document.getElementById('progress').innerText=`Question ${current+1} of ${questions.length} — ${q.subject}`;document.getElementById('qText').innerText=q.q;let html='';q.o.forEach((opt,i)=>{html+=`<div class="opt ${answers[current]==i?'selected':''}" onclick="pick(${i})">${String.fromCharCode(65+i)}. ${opt}</div>`;});document.getElementById('options').innerHTML=html;}
+function pick(i){answers[current]=i;showQ();}
+function nextQ(){if(current<questions.length-1){current++;showQ();}else{alert('Last question. Tap SUBMIT.');}}
+function submitExam(){clearInterval(timerInt);let score=0,detail='';questions.forEach((q,i)=>{let correct=answers[i]==q.a;if(correct)score++;detail+=`${i+1}. [${q.subject}] ${q.q}\nYour: ${answers[i]>=0?q.o[answers[i]]:'No answer'} — ${correct?'✅ Correct':'❌ Wrong. Correct: '+q.o[q.a]}\nExp: ${q.exp}\n\n`;});let total=Math.round((score/questions.length)*400);document.getElementById('exam').style.display='none';document.getElementById('result').style.display='block';document.getElementById('scoreTitle').innerText=`${document.getElementById('studentName').value}, You scored ${score}/${questions.length} = ${total}/400`;document.getElementById('scoreDetail').innerText=detail;}
+function shareApp(){navigator.clipboard.writeText(window.location.href);alert('Link copied! Share on WhatsApp Status.');}
+</script>
+</body>
+</html>
