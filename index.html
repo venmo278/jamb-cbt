@@ -1,54 +1,342 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VENMO JAMBITE CBT SIMULATOR 2027</title>
+<title>VENMO JAMBITE — CBT Simulator 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-body{background:#0f172a;color:#fff;font-family:Arial;padding:15px}
-.card{background:#1e293b;border-radius:12px;padding:15px;margin:10px 0}
-input,select{width:100%;padding:12px;margin:8px 0;border-radius:8px;background:#0f172a;color:#fff;border:1px solid #334155}
-button{background:#22c55e;color:#000;font-weight:bold;padding:14px;width:100%;border:none;border-radius:10px;font-size:16px;margin-top:8px}
-.result-card{background:#1e293b!important;color:#fff!important;border:1px solid #334155;padding:12px;border-radius:10px;margin:8px 0}
-.qcard{background:#1e293b;padding:12px;border-radius:10px;margin:8px 0}
-h1{color:#22c55e;text-align:center;font-size:22px}
+:root{
+  --bg:#08090f;
+  --bg-2:#0d0f17;
+  --glass:rgba(255,255,255,.045);
+  --glass-strong:rgba(255,255,255,.08);
+  --stroke:rgba(255,255,255,.09);
+  --stroke-hover:rgba(255,255,255,.18);
+  --text:#f4f5f7;
+  --muted:#8b90a0;
+  --brand:#22c55e;
+  --brand-soft:rgba(34,197,94,.14);
+  --amber:#f59e0b;
+  --red:#ef4444;
+  --radius:16px;
+  --shadow:0 20px 60px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  min-height:100vh;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;
+  background:
+    radial-gradient(600px 400px at 85% -10%,rgba(34,197,94,.13),transparent 60%),
+    radial-gradient(700px 500px at -10% 110%,rgba(99,102,241,.10),transparent 60%),
+    linear-gradient(180deg,var(--bg-2),var(--bg));
+}
+button,input,select{font-family:inherit}
+
+/* ---------- primitives ---------- */
+.card{
+  background:var(--glass);
+  border:1px solid var(--stroke);
+  border-radius:var(--radius);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:var(--shadow);
+  padding:28px;
+  transition:border-color .25s,transform .25s;
+}
+.card:hover{border-color:var(--stroke-hover)}
+.field{
+  width:100%;padding:13px 16px;margin:8px 0;
+  border-radius:12px;background:rgba(0,0,0,.35);color:var(--text);
+  border:1px solid var(--stroke);outline:none;
+  font-size:15px;transition:border-color .2s,box-shadow .2s;
+}
+.field::placeholder{color:var(--muted)}
+.field:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+label.lbl{display:block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:14px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:14px 20px;border:none;border-radius:12px;
+  font-weight:700;font-size:15px;cursor:pointer;margin-top:10px;
+  transition:transform .15s,box-shadow .2s,background .2s,opacity .2s;
+}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--brand);color:#04120a;box-shadow:0 8px 28px rgba(34,197,94,.28)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 34px rgba(34,197,94,.38)}
+.btn-ghost{background:var(--glass-strong);color:var(--text);border:1px solid var(--stroke)}
+.btn-ghost:hover{border-color:var(--stroke-hover);background:rgba(255,255,255,.11)}
+.btn-amber{background:var(--amber);color:#1a1200}
+.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(239,68,68,.4)}
+.btn-danger:hover{background:rgba(239,68,68,.12)}
+.msg{font-size:13px;color:var(--muted);min-height:18px;margin-top:10px}
+.msg.error{color:var(--red)}
+.msg.ok{color:var(--brand)}
+
+/* ---------- shell ---------- */
+.wrap{max-width:1200px;margin:0 auto;padding:24px 18px 80px}
+.brand{
+  display:flex;align-items:center;gap:12px;justify-content:center;margin:34px 0 6px;
+}
+.brand-dot{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--brand),#0ea5e9);
+  font-size:20px;box-shadow:0 6px 20px rgba(34,197,94,.35);
+}
+.brand h1{font-size:clamp(20px,3vw,28px);font-weight:800;letter-spacing:-.02em}
+.brand h1 span{color:var(--brand)}
+.tagline{color:var(--muted);text-align:center;font-size:13.5px}
+.pillbar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:18px 0 26px}
+.pill{
+  font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;
+  background:var(--glass);border:1px solid var(--stroke);color:var(--muted);
+}
+
+/* ---------- setup ---------- */
+.setup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:14px}
+
+/* ---------- exam layout ---------- */
+#exam{display:none}
+.exam-shell{display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start}
+.palette{
+  position:sticky;top:20px;padding:20px;
+  max-height:calc(100vh - 40px);overflow:auto;
+}
+.palette h4{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.legend{display:flex;gap:12px;font-size:11.5px;color:var(--muted);margin-bottom:14px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.grid-q{display:grid;grid-template-columns:repeat(8,1fr);gap:7px}
+.qbtn{
+  aspect-ratio:1;border-radius:8px;border:1px solid var(--stroke);
+  background:rgba(255,255,255,.04);color:var(--muted);
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:transform .12s,border-color .15s,background .15s;
+}
+.qbtn:hover{transform:translateY(-2px);border-color:var(--stroke-hover)}
+.qbtn.answered{background:var(--brand);border-color:var(--brand);color:#04120a}
+.qbtn.flagged{background:rgba(245,158,11,.18);border-color:rgba(245,158,11,.5);color:var(--amber)}
+.qbtn.current{outline:2px solid #fff;outline-offset:1px}
+.palette-stats{margin-top:16px;font-size:12.5px;color:var(--muted);display:grid;gap:6px}
+.palette-stats b{color:var(--text)}
+
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  flex-wrap:wrap;padding:14px 18px;margin-bottom:16px;
+}
+.timer{
+  font-variant-numeric:tabular-nums;font-weight:800;font-size:18px;
+  padding:8px 16px;border-radius:10px;
+  background:var(--brand-soft);border:1px solid rgba(34,197,94,.35);color:var(--brand);
+  display:flex;align-items:center;gap:8px;
+}
+.timer.warn{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.45);color:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.65}}
+
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none}
+.tab{
+  padding:9px 18px;border-radius:999px;border:1px solid var(--stroke);
+  background:var(--glass);color:var(--muted);font-size:13px;font-weight:700;
+  cursor:pointer;white-space:nowrap;transition:all .18s;
+}
+.tab:hover{border-color:var(--stroke-hover);color:var(--text)}
+.tab.active{background:var(--text);color:#0a0a0f;border-color:var(--text)}
+.tab .count{opacity:.55;font-weight:600;margin-left:6px;font-size:12px}
+
+.qview{animation:fadein .3s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.qmeta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.qnum{font-size:13px;font-weight:700;color:var(--muted)}
+.qnum b{color:var(--text);font-size:16px}
+.flag-btn{
+  background:none;border:1px solid var(--stroke);border-radius:999px;
+  padding:7px 14px;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;
+}
+.flag-btn.on{border-color:rgba(245,158,11,.5);color:var(--amber);background:rgba(245,158,11,.12)}
+.question{font-size:clamp(16px,2vw,19px);font-weight:700;line-height:1.5;margin-bottom:22px}
+.opt{
+  display:flex;align-items:center;gap:14px;padding:15px 18px;margin:10px 0;
+  border-radius:12px;border:1px solid var(--stroke);background:rgba(255,255,255,.03);
+  cursor:pointer;transition:all .18s;
+}
+.opt:hover{border-color:var(--stroke-hover);transform:translateX(4px);background:rgba(255,255,255,.06)}
+.opt input{accent-color:var(--brand);width:18px;height:18px;flex-shrink:0}
+.opt.sel{border-color:var(--brand);background:var(--brand-soft)}
+.opt .letter{
+  width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;
+  background:rgba(255,255,255,.07);font-size:12.5px;font-weight:800;color:var(--muted);
+  transition:all .18s;
+}
+.opt.sel .letter{background:var(--brand);color:#04120a}
+.nav-row{display:flex;gap:10px;margin-top:22px}
+.nav-row .btn{margin-top:0}
+.nav-spacer{flex:1}
+
+/* ---------- results ---------- */
+.score-hero{text-align:center;padding:34px 28px}
+.score-ring{
+  width:170px;height:170px;margin:0 auto 16px;border-radius:50%;
+  display:grid;place-items:center;position:relative;
+  background:
+    radial-gradient(closest-side,var(--bg-2) 79%,transparent 80%),
+    conic-gradient(var(--brand) calc(var(--pct)*1%),rgba(255,255,255,.08) 0);
+  transition:background 1.2s ease;
+}
+.score-ring .big{font-size:34px;font-weight:800}
+.score-ring .sub{font-size:12px;color:var(--muted);font-weight:600}
+.verdict{
+  display:inline-block;font-weight:700;font-size:15px;padding:10px 20px;border-radius:999px;
+  background:var(--brand-soft);border:1px solid rgba(34,197,94,.35);color:var(--brand);
+}
+.subject-rows{display:grid;gap:14px;margin-top:26px}
+.srow-head{display:flex;justify-content:space-between;font-size:13.5px;font-weight:700;margin-bottom:7px}
+.srow-head span:last-child{color:var(--muted)}
+.bar{height:9px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar i{
+  display:block;height:100%;width:0;border-radius:999px;
+  background:linear-gradient(90deg,var(--brand),#4ade80);
+  transition:width 1s cubic-bezier(.2,.8,.2,1);
+}
+.review-item{
+  padding:16px 18px;margin:10px 0;border-radius:12px;
+  border:1px solid var(--stroke);background:var(--glass);font-size:14px;
+}
+.review-item.correct{border-color:rgba(34,197,94,.3)}
+.review-item.wrong{border-color:rgba(239,68,68,.3)}
+.review-item .tag{
+  font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;margin-right:8px;
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.review-item.correct .tag{background:var(--brand-soft);color:var(--brand)}
+.review-item.wrong .tag{background:rgba(239,68,68,.14);color:var(--red)}
+.review-item p{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.55}
+.review-item p b{color:var(--text)}
+
+/* ---------- modal ---------- */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);
+  display:none;place-items:center;z-index:50;padding:20px;
+}
+.modal-bg.show{display:grid;animation:fadein .2s ease}
+.modal{max-width:400px;width:100%;text-align:center}
+.modal h3{font-size:19px;margin-bottom:8px}
+.modal p{color:var(--muted);font-size:14px;margin-bottom:6px}
+
+/* ---------- responsive ---------- */
+@media(max-width:900px){
+  .exam-shell{grid-template-columns:1fr}
+  .palette{position:static;max-height:none;order:2}
+  .grid-q{grid-template-columns:repeat(10,1fr)}
+}
+@media(max-width:520px){
+  .grid-q{grid-template-columns:repeat(6,1fr)}
+  .card{padding:20px}
+}
 </style>
 </head>
 <body>
-<h1>🇳🇬 VENMO JAMBITE CBT SIMULATOR 2027</h1>
-<p style="text-align:center">Free • Real JAMB Format • 180 Questions • Score Over 400 • Timer • Pidgin Explanation</p>
 
-<div id="auth" class="card">
-<h3>Create Account / Login</h3>
-<input id="uname" placeholder="Your Name e.g Musa Ibrahim">
-<input id="uphone" placeholder="Phone Number">
-<input id="upass" type="password" placeholder="Password">
-<button onclick="signup()">CREATE ACCOUNT & LOGIN</button>
-<button onclick="login()" style="background:#eab308">LOGIN</button>
-<p id="authmsg"></p>
+<div class="wrap">
+
+<div class="brand">
+    <div class="brand-dot">🇳🇬</div>
+    <h1>VENMO <span>JAMBITE</span> — CBT Simulator 2027</h1>
+  </div>
+  <p class="tagline">Free • Real JAMB format • 180 questions • Score over 400</p>
+  <div class="pillbar">
+    <div class="pill">⏱️ 2-hour timer</div>
+    <div class="pill">📚 500+ past-question bank</div>
+    <div class="pill">📊 Full subject breakdown</div>
+  </div>
+
+<!-- AUTH -->
+  <div id="auth" class="card" style="max-width:440px;margin:0 auto">
+    <h3 style="margin-bottom:4px">Create Account / Login</h3>
+    <label class="lbl">Full name</label>
+    <input id="uname" class="field" placeholder="e.g. Musa Ibrahim">
+    <label class="lbl">Phone number</label>
+    <input id="uphone" class="field" placeholder="080...">
+    <label class="lbl">Password</label>
+    <input id="upass" type="password" class="field" placeholder="••••••••">
+    <button class="btn btn-primary" onclick="signup()">Create Account & Login</button>
+    <button class="btn btn-ghost" onclick="login()">Login</button>
+    <p id="authmsg" class="msg"></p>
+  </div>
+
+<!-- SETUP -->
+  <div id="setup" class="card" style="display:none;max-width:760px;margin:0 auto">
+    <h3 id="welcome"></h3>
+    <p style="color:var(--muted);font-size:14px;margin-top:6px">Your 4 subjects — JAMB standard is 180 questions</p>
+    <div class="setup-grid">
+      <div><label class="lbl">Subject 1 (Compulsory)</label><select class="field"><option>English — 60 Questions</option></select></div>
+      <div><label class="lbl">Subject 2</label><select class="field"><option>Mathematics — 40 Questions</option></select></div>
+      <div><label class="lbl">Subject 3</label><select class="field"><option>Physics — 40 Questions</option></select></div>
+      <div><label class="lbl">Subject 4</label><select class="field"><option>Chemistry — 40 Questions</option></select></div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:22px;font-size:16px" onclick="startExam()">Start Exam — 2 Hours • 180 Questions</button>
+    <p style="color:var(--muted);font-size:12.5px;margin-top:14px;text-align:center">Made for Nigerian students • Abuja • Venmo Jambite</p>
+    <button class="btn btn-danger" onclick="logout()">Logout</button>
+  </div>
+
+<!-- EXAM -->
+  <div id="exam">
+    <div class="topbar card" style="padding:14px 18px">
+      <div class="timer" id="timer">2:00:00 left</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span id="answered-count" style="font-size:13px;color:var(--muted);font-weight:600"></span>
+        <button class="btn btn-primary" style="width:auto;margin:0;padding:11px 22px" onclick="askSubmit()">Submit Exam</button>
+      </div>
+    </div>
+
+<div class="exam-shell">
+      <div class="palette card">
+        <h4>Question Palette</h4>
+        <div class="legend">
+          <span><i style="background:var(--brand)"></i>Answered</span>
+          <span><i style="background:rgba(245,158,11,.7)"></i>Flagged</span>
+          <span><i style="background:rgba(255,255,255,.15)"></i>Unanswered</span>
+        </div>
+        <div class="grid-q" id="palette-grid"></div>
+        <div class="palette-stats">
+          <span>Answered: <b id="p-answered">0</b> / 180</span>
+          <span>Flagged: <b id="p-flagged">0</b></span>
+          <span>Remaining: <b id="p-left">180</b></span>
+        </div>
+      </div>
+
+<div>
+        <div class="tabs" id="tabs"></div>
+        <div class="card qview" id="qview"></div>
+        <div class="nav-row">
+          <button class="btn btn-ghost" style="width:auto;padding:13px 26px" onclick="go(-1)">← Previous</button>
+          <div class="nav-spacer"></div>
+          <button class="btn btn-ghost" style="width:auto;padding:13px 26px" onclick="flagCurrent()" id="flag-btn">⚑ Flag</button>
+          <button class="btn btn-primary" style="width:auto;padding:13px 26px" onclick="go(1)">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- RESULTS -->
+  <div id="result" style="display:none;max-width:860px;margin:0 auto"></div>
 </div>
 
-<div id="setup" class="card" style="display:none">
-<h3 id="welcome"></h3>
-<p>Choose Your 4 Subjects - JAMB is 180 Questions</p>
-<select><option>English - 60 Questions</option></select>
-<select><option>Mathematics - 40 Questions</option></select>
-<select><option>Physics - 40 Questions</option></select>
-<select><option>Chemistry - 40 Questions</option></select>
-<button onclick="startExam()">START EXAM — 2 HOURS • 180 QUESTIONS</button>
-<p>Made for Nigerian Students • Abuja • Venmo Jambite • 500+ Past Questions Bank</p>
-<button onclick="logout()" style="background:#ef4444;color:#fff">LOGOUT</button>
+<!-- SUBMIT MODAL -->
+<div class="modal-bg" id="modal-bg">
+  <div class="card modal">
+    <h3>Submit exam?</h3>
+    <p id="modal-stats"></p>
+    <p>Once you submit, you no fit continue.</p>
+    <button class="btn btn-primary" onclick="submitExam()">Yes — Submit & See Score</button>
+    <button class="btn btn-ghost" onclick="closeModal()">No — Keep Writing</button>
+  </div>
 </div>
-
-<div id="exam" style="display:none">
-<div id="timer" style="font-size:20px;text-align:center;color:#22c55e"></div>
-<div id="qbox"></div>
-<button onclick="submitExam()">SUBMIT & SEE SCORE OVER 400</button>
-</div>
-<div id="result" style="display:none"></div>
 
 <script>
-// 500+ PAST QUESTIONS BANK - generated from real JAMB patterns
+/* ================= QUESTION BANK (unchanged) ================= */
 let ALL_Q=[];
 let engBase=[
 ["Choose nearest in meaning: The principal was adamant.",["stubborn","kind","soft","weak"],0,"Adamant means stubborn."],
@@ -75,24 +363,171 @@ let chemBase=[["pH of neutral:",["7","0","14","1"],0,"Neutral=7"],["Symbol for S
 for(let i=0;i<100;i++){let b=chemBase[i%chemBase.length];ALL_Q.push({q:b[0],opts:b[1],ans:b[2],exp:b[3],subj:"Chemistry"});}
 for(let i=0;i<50;i++){ALL_Q.push({q:"Powerhouse of cell is:",opts:["Mitochondria","Nucleus","Ribosome","Golgi body"],ans:0,exp:"Mitochondria",subj:"Biology"});}
 
-let currentUser=null, examQs=[], answers={}, timeLeft=7200, timerInt;
-function signup(){let n=document.getElementById('uname').value;let p=document.getElementById('uphone').value;let pw=document.getElementById('upass').value;if(!n||!p||!pw){document.getElementById('authmsg').innerText='Fill all fields';return;}localStorage.setItem('venmo_user_'+p,JSON.stringify({name:n,phone:p,pass:pw}));localStorage.setItem('venmo_current',p);enterApp(n);}
-function login(){let p=document.getElementById('uphone').value;let pw=document.getElementById('upass').value;let u=localStorage.getItem('venmo_user_'+p);if(!u){document.getElementById('authmsg').innerText='No account. Create one.';return;}let o=JSON.parse(u);if(o.pass!==pw){document.getElementById('authmsg').innerText='Wrong password';return;}localStorage.setItem('venmo_current',p);enterApp(o.name);}
-function enterApp(name){currentUser=name;document.getElementById('auth').style.display='none';document.getElementById('setup').style.display='block';document.getElementById('welcome').innerText='Welcome back, '+name+'! You have 500+ questions bank.';}
+/* ================= STATE ================= */
+const SUBJECTS=["English","Mathematics","Physics","Chemistry"];
+const LETTERS=["A","B","C","D"];
+let currentUser=null,examQs=[],answers={},flags={},cur=0,timeLeft=7200,timerInt;
+
+/* ================= AUTH ================= */
+function setMsg(id,t,cls){const e=document.getElementById(id);e.innerText=t;e.className='msg '+(cls||'');}
+function signup(){
+  const n=uname.value.trim(),p=uphone.value.trim(),pw=upass.value;
+  if(!n||!p||!pw){setMsg('authmsg','Abeg fill all the fields','error');return;}
+  localStorage.setItem('venmo_user_'+p,JSON.stringify({name:n,phone:p,pass:pw}));
+  localStorage.setItem('venmo_current',p);enterApp(n);
+}
+function login(){
+  const p=uphone.value.trim(),pw=upass.value;
+  const u=localStorage.getItem('venmo_user_'+p);
+  if(!u){setMsg('authmsg','No account with this phone. Create one first.','error');return;}
+  const o=JSON.parse(u);
+  if(o.pass!==pw){setMsg('authmsg','Wrong password. Try again.','error');return;}
+  localStorage.setItem('venmo_current',p);enterApp(o.name);
+}
+function enterApp(name){
+  currentUser=name;
+  auth.style.display='none';setup.style.display='block';
+  welcome.innerHTML='Welcome back, <span style="color:var(--brand)">'+name+'</span> 👋<br><span style="font-size:13px;font-weight:500;color:var(--muted)">Your 500+ question bank is ready.</span>';
+}
 function logout(){localStorage.removeItem('venmo_current');location.reload();}
 function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));let t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+/* ================= EXAM ================= */
 function startExam(){
-let eng=shuffle(ALL_Q.filter(q=>q.subj==='English')).slice(0,60);
-let mat=shuffle(ALL_Q.filter(q=>q.subj==='Mathematics')).slice(0,40);
-let phy=shuffle(ALL_Q.filter(q=>q.subj==='Physics')).slice(0,40);
-let che=shuffle(ALL_Q.filter(q=>q.subj==='Chemistry')).slice(0,40);
-examQs=[...eng,...mat,...phy,...che];
-document.getElementById('setup').style.display='none';document.getElementById('exam').style.display='block';showQs();
-timerInt=setInterval(()=>{timeLeft--;let h=Math.floor(timeLeft/3600);let m=Math.floor((timeLeft%3600)/60);let s=timeLeft%60;document.getElementById('timer').innerText=h+':'+m+':'+s+' left';if(timeLeft<=0)submitExam();},1000);
+  const eng=shuffle(ALL_Q.filter(q=>q.subj==='English')).slice(0,60);
+  const mat=shuffle(ALL_Q.filter(q=>q.subj==='Mathematics')).slice(0,40);
+  const phy=shuffle(ALL_Q.filter(q=>q.subj==='Physics')).slice(0,40);
+  const che=shuffle(ALL_Q.filter(q=>q.subj==='Chemistry')).slice(0,40);
+  examQs=[...eng,...mat,...phy,...che];
+  answers={};flags={};cur=0;
+  setup.style.display='none';exam.style.display='block';
+  buildTabs();renderQ();updatePalette();
+  timerInt=setInterval(()=>{
+    timeLeft--;
+    const h=Math.floor(timeLeft/3600),m=Math.floor((timeLeft%3600)/60),s=timeLeft%60;
+    const tEl=document.getElementById('timer');
+    tEl.innerText=`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} left`;
+    if(timeLeft<=300)tEl.classList.add('warn');
+    if(timeLeft<=0)submitExam();
+  },1000);
 }
-function showQs(){let html='';examQs.forEach((q,i)=>{html+="<div class='qcard'><b>"+(i+1)+". ["+q.subj+"] "+q.q+"</b><br>";q.opts.forEach((o,oi)=>{html+="<label><input type='radio' name='q"+i+"' value='"+oi+"' onchange='answers["+i+"]="+oi+"'> "+o+"</label><br>";});html+='</div>';});document.getElementById('qbox').innerHTML=html;}
-function submitExam(){clearInterval(timerInt);let c={English:0,Mathematics:0,Physics:0,Chemistry:0};let tot={English:0,Mathematics:0,Physics:0,Chemistry:0};examQs.forEach((q,i)=>{tot[q.subj]++;if(answers[i]===q.ans)c[q.subj]++;});let eS=Math.round(c['English']/60*100);let mS=Math.round(c['Mathematics']/40*100);let pS=Math.round(c['Physics']/40*100);let chS=Math.round(c['Chemistry']/40*100);let total=eS+mS+pS+chS;let totalC=c['English']+c['Mathematics']+c['Physics']+c['Chemistry'];let html="<div class='card' style='background:#1e293b'><h2>"+currentUser+", You scored "+totalC+"/180 = "+total+"/400</h2><p>English: "+c['English']+"/60 = "+eS+"/100<br>Maths: "+c['Mathematics']+"/40 = "+mS+"/100<br>Physics: "+c['Physics']+"/40 = "+pS+"/100<br>Chemistry: "+c['Chemistry']+"/40 = "+chS+"/100</p><p>"+(total>=250?'🔥 JAMBITE! You go blow!':total>=200?'Good! Small more practice':'Keep practicing, you go pass!')+"</p></div>";examQs.forEach((q,i)=>{let your=answers[i]!==undefined?q.opts[answers[i]]:'No answer';let isC=answers[i]===q.ans;html+="<div class='result-card'>"+(i+1)+". ["+q.subj+"] "+q.q+"<br>Your: "+your+" — "+(isC?'✅ Correct':'❌ Wrong. Correct: '+q.opts[q.ans])+"<br>Exp: "+q.exp+"</div>";});html+="<button onclick='location.reload()'>RETAKE EXAM</button>";document.getElementById('exam').style.display='none';let r=document.getElementById('result');r.style.display='block';r.innerHTML=html;window.scrollTo(0,0);}
-let cur=localStorage.getItem('venmo_current');if(cur){let u=localStorage.getItem('venmo_user_'+cur);if(u)enterApp(JSON.parse(u).name);}
+
+function firstOf(subj){return examQs.findIndex(q=>q.subj===subj);}
+function buildTabs(){
+  const html=SUBJECTS.map(s=>`<button class="tab" data-subj="${s}" onclick="jumpTo('${s}')">${s}<span class="count">${examQs.filter(q=>q.subj===s).length}</span></button>`).join('');
+  document.getElementById('tabs').innerHTML=html;
+}
+function setActiveTab(subj){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.subj===subj));
+}
+function jumpTo(subj){cur=firstOf(subj);renderQ();updatePalette();window.scrollTo({top:0,behavior:'smooth'});}
+function go(d){cur=Math.min(examQs.length-1,Math.max(0,cur+d));renderQ();updatePalette();}
+function jump(n){cur=n;renderQ();updatePalette();window.scrollTo({top:0,behavior:'smooth'});}
+
+function renderQ(){
+  const q=examQs[cur];
+  setActiveTab(q.subj);
+  const letters=["A","B","C","D"];
+  document.getElementById('qview').innerHTML=`
+    <div class="qmeta">
+      <span class="qnum"><b>Question ${cur+1}</b> of ${examQs.length} • ${q.subj}</span>
+      <button class="flag-btn ${flags[cur]?'on':''}" onclick="flagCurrent()">${flags[cur]?'⚑ Flagged':'⚑ Flag for review'}</button>
+    </div>
+    <div class="question">${q.q}</div>
+    ${q.opts.map((o,i)=>`
+      <label class="opt ${answers[cur]===i?'sel':''}" onclick="pick(${i})">
+        <span class="letter">${letters[i]}</span>
+        <input type="radio" name="q" ${answers[cur]===i?'checked':''}>
+        <span>${o}</span>
+      </label>`).join('')}
+    <div class="nav-row">
+      <button class="btn btn-ghost" style="width:auto;padding:12px 24px;margin:0" onclick="go(-1)" ${cur===0?'disabled':''}>← Previous</button>
+      <div class="nav-spacer"></div>
+      <button class="btn btn-primary" style="width:auto;padding:12px 24px;margin:0" onclick="go(1)" ${cur===examQs.length-1?'disabled':''}>Next →</button>
+    </div>`;
+}
+function pick(i){
+  answers[cur]=i;
+  const opts=document.querySelectorAll('.opt');
+  opts.forEach(o=>o.classList.remove('sel'));
+  opts[i].classList.add('sel');
+  updatePalette();
+}
+function flagCurrent(){flags[cur]=!flags[cur];renderQ();updatePalette();}
+
+function updatePalette(){
+  const grid=document.getElementById('palette-grid');
+  grid.innerHTML=examQs.map((q,i)=>
+    `<button class="qbtn ${answers[i]!==undefined?'answered':''} ${flags[i]?'flagged':''} ${i===cur?'current':''}" onclick="jump(${i})">${i+1}</button>`
+  ).join('');
+  const a=Object.keys(answers).length,f=Object.keys(flags).length;
+  document.getElementById('answered-count').innerText=`${a}/180 answered`;
+  document.getElementById('p-answered').innerText=a;
+  document.getElementById('p-flagged').innerText=f;
+  document.getElementById('p-left').innerText=180-a;
+}
+
+/* ================= SUBMIT ================= */
+function askSubmit(){
+  const a=Object.keys(answers).length,f=Object.keys(flags).filter(k=>answers[k]===undefined).length;
+  document.getElementById('modal-stats').innerText=`You don answer ${a} of 180. ${f} flagged question${f===1?'':'s'} never get answer.`;
+  document.getElementById('modal-bg').classList.add('show');
+}
+function closeModal(){document.getElementById('modal-bg').classList.remove('show');}
+
+function submitExam(){
+  clearInterval(timerInt);closeModal();
+  let c={English:0,Mathematics:0,Physics:0,Chemistry:0};
+  let tot={English:60,Mathematics:40,Physics:40,Chemistry:40};
+  examQs.forEach((q,i)=>{if(answers[i]===q.ans)c[q.subj]++;});
+  const eS=Math.round(c.English/60*100),mS=Math.round(c.Mathematics/40*100),
+        pS=Math.round(c.Physics/40*100),chS=Math.round(c.Chemistry/40*100);
+  const total=eS+mS+pS+chS,totalC=c.English+c.Mathematics+c.Physics+c.Chemistry;
+  const verdict=total>=250?'🔥 JAMBITE! You go blow!'
+              :total>=200?'💪 Good! Small more practice and you dey there'
+              :'📖 Keep practicing — you go pass!';
+  const pct=Math.min(100,Math.round(total/4));
+
+const rows=SUBJECTS.map((s,i)=>{
+    const [got,n,score]=[[c.English,60,eS],[c.Mathematics,40,mS],[c.Physics,40,pS],[c.Chemistry,40,chS]][i];
+    return `<div class="srow"><div class="srow-head"><span>${s}</span><span>${got}/${n} = ${score}/100</span></div><div class="bar"><i data-w="${score}"></i></div></div>`;
+  }).join('');
+
+const review=examQs.map((q,i)=>{
+    const answered=answers[i]!==undefined;
+    const isC=answers[i]===q.ans;
+    const cls=!answered||!isC?'wrong':'correct';
+    const tag=!answered||!isC?'❌ Wrong':'✅ Correct';
+    return `<div class="review-item ${cls}"><span class="tag">${tag}</span><b>${i+1}.</b> [${q.subj}] ${q.q}<br>
+      Your answer: <b>${answered?q.opts[answers[i]]:'No answer'}</b>${isC?'':` — Correct: <b>${q.opts[q.ans]}</b>`}
+      <p><b>Explanation:</b> ${q.exp}</p></div>`;
+  }).join('');
+
+document.getElementById('result').innerHTML=`
+    <div class="card score-hero">
+      <div class="score-ring" style="--pct:0" id="ring">
+        <div><div class="big">${total}</div><div class="sub">/ 400</div></div>
+      </div>
+      <h2 style="font-size:21px;margin-bottom:6px">${currentUser}, you scored ${totalC}/180 = ${total}/400</h2>
+      <div class="verdict">${verdict}</div>
+      <div class="subject-rows">${rows}</div>
+    </div>
+    <h3 style="margin:26px 0 6px;font-size:17px">📋 Full Review & Explanations</h3>
+    ${review}
+    <button class="btn btn-primary" style="max-width:380px;margin:22px auto 0" onclick="location.reload()">↻ Retake Exam</button>`;
+  exam.style.display='none';
+  document.getElementById('result').style.display='block';
+  window.scrollTo({top:0});
+  /* animate ring + bars after paint */
+  setTimeout(()=>{
+    document.getElementById('ring').style.setProperty('--pct',pct);
+    document.querySelectorAll('.bar i').forEach(b=>b.style.width=b.dataset.w+'%');
+  },100);
+}
+
+/* ================= INIT ================= */
+const saved=localStorage.getItem('venmo_current');
+if(saved){const u=localStorage.getItem('venmo_user_'+saved);if(u)enterApp(JSON.parse(u).name);}
 </script>
 </body>
 </html>
